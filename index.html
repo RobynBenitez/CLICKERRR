@@ -790,12 +790,28 @@ function cleanLines(text){
         .map(l=>l.trim())
         .filter(l=>l && !l.includes(".txt"));
 }
-		
-function formatBio(text){
-    const parts=text.trim().split(/\s+/);
-    if(parts.length<3) return text;
-    return parts[0]+"\n"+parts[1]+" "+parts.slice(2).join(" ");
+		function cleanLines(text){
+    return text.split("\n")
+        .map(l => l.trim())
+        .filter(l =>
+            l &&
+            !l.includes(".txt") &&
+            !l.includes(" KB") &&
+            l !== "•" &&
+            l !== "TXT" &&
+            l !== "A" &&
+            l !== "threads 2026" &&
+            l !== "Data" &&
+            l !== "Share" &&
+            l !== "Interfaces" &&
+            l !== "Forms" &&
+            l !== "There are no comments on this attachment yet." &&
+            l !== "Pro tip: click and drag on images and videos to annotate them." &&
+            l !== "Comments" &&
+            l !== "Automations"
+        );
 }
+
 
 function extractPicInfo(link){
     try{
