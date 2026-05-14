@@ -780,23 +780,16 @@ textarea{
 </div>
 
 <script>
-
-/* ===== YOUR ENTIRE ORIGINAL SCRIPT 100% INCLUDED ===== */
-
-let activeButton=null;
+ let activeButton=null;
 
 function cleanLines(text){
-    return text.split("\n")
-        .map(l=>l.trim())
-        .filter(l=>l && !l.includes(".txt"));
-}
-		function cleanLines(text){
     return text.split("\n")
         .map(l => l.trim())
         .filter(l =>
             l &&
             !l.includes(".txt") &&
             !l.includes(" KB") &&
+            l !== "100%" &&
             l !== "•" &&
             l !== "TXT" &&
             l !== "A" &&
@@ -812,6 +805,11 @@ function cleanLines(text){
         );
 }
 
+function formatBio(text){
+    const parts=text.trim().split(/\s+/);
+    if(parts.length<3) return text;
+    return parts[0]+"\n"+parts[1]+" "+parts.slice(2).join(" ");
+}
 
 function extractPicInfo(link){
     try{
@@ -870,24 +868,43 @@ function generate(){
     if(raw){
         const parts=raw.split("\t").map(p=>p.trim());
 
+        /* UPDATED ROWS */
         username = parts[0] || "";
-        email = parts[21] || "";
-        vpn = parts[13] || "";
-        model = parts[15] || "";
-        location = parts[16] || "";
-        bioRaw = parts[22] || "";
-        repostCaption = parts[23] || "";
-        repostAcc = parts[17] || "";
+        email = parts[3] || "";
+        vpn = parts[14] || "";
+        model = parts[16] || "";
+        location = parts[17] || "";
+        repostAcc = parts[18] || "";
+        repostCaption = parts[19] || "";
 
         document.getElementById("mainUsername").innerText=username;
+
+        const rowTopics = [
+            parts[23],
+            parts[24],
+            parts[25]
+        ].filter(Boolean);
+
+        const rowCaps = [
+            parts[26],
+            parts[27],
+            parts[28]
+        ].filter(Boolean);
+
+        /* FIXED FALLBACK LOGIC */
+        window._rowTopics = rowTopics.length ? rowTopics : null;
+        window._rowCaps = rowCaps.length ? rowCaps : null;
     }
 
     const pics=cleanLines(document.getElementById("pics").value);
-    const caps=cleanLines(document.getElementById("captions").value);
-    const topics=cleanLines(document.getElementById("topics").value);
 
-    if(pics[0]){
-        const info=extractPicInfo(pics[0]);
+    const caps = window._rowCaps || cleanLines(document.getElementById("captions").value);
+    const topics = window._rowTopics || cleanLines(document.getElementById("topics").value);
+
+    const picsClean=cleanLines(document.getElementById("pics").value);
+
+    if(picsClean[0]){
+        const info=extractPicInfo(picsClean[0]);
         picModel=info.name;
         picLocation=info.location;
     }
@@ -903,8 +920,6 @@ function generate(){
 
     document.getElementById("locationOutput").innerText =
         "Location: " + (finalLocationDisplay || "");
-
-    /* ===== PROXY SECTION ===== */
 
     const proxyContainer = document.getElementById("proxyOutput");
 
@@ -923,17 +938,6 @@ function generate(){
         labelBtn.onclick = () => {
 
             const proxyList = `Seattle
-St. Louis
-Washington D.C
-Atlanta
-Chicago
-Los Angeles
-Miami
-New York
-Phoenix
-Salt Lake City
-San Jose
-Seattle
 St. Louis
 Washington D.C
 Atlanta
@@ -969,8 +973,6 @@ San Jose`;
         proxyContainer.appendChild(proxyBtn);
     }
 
-    /* ===== BUTTON GENERATION ===== */
-
     const allValues=[
         ...pics.slice(0,3),
         ...caps.slice(0,3),
@@ -998,7 +1000,7 @@ San Jose`;
     passBtn.className="output-btn";
     passBtn.innerText="Pass";
     passBtn.onclick=()=>{
-        navigator.clipboard.writeText("Ascension2025!");
+        navigator.clipboard.writeText("Ascension2025!\n");
         if(activeButton) activeButton.classList.remove("active");
         passBtn.classList.add("active");
         activeButton=passBtn;
@@ -1032,6 +1034,5 @@ San Jose`;
 }
 
 </script>
-
 </body>
 </html>
